@@ -1,0 +1,8 @@
+CREATE TABLE usuarios (
+    id SERIAL PRIMARY KEY,
+    nombre VARCHAR(150) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    rol VARCHAR(50) DEFAULT 'usuario',
+    activo BOOLEAN DEFAULT TRUE,
+    "fecha-creacion" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

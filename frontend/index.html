@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Panel de Administración y Control REST - Sistema de Usuarios y Productos">
+    <title>Panel de Administración - API REST</title>
+    
+    <!-- Fuente moderna Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    
+    <!-- Hoja de estilos moderna -->
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+    <!-- Encabezado de la Aplicación -->
+    <header class="app-header">
+        <div class="header-container">
+            <div class="brand-section">
+                <div class="brand-logo">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                        <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                        <polyline points="2 17 12 22 22 17"></polyline>
+                        <polyline points="2 12 12 17 22 12"></polyline>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="brand-title">Consola de Administración</h1>
+                    <span class="brand-subtitle">API REST N-Tier &bull; Node.js &amp; PostgreSQL</span>
+                </div>
+            </div>
+
+            <div class="header-meta">
+                <!-- Insignia de conectividad con Backend -->
+                <div id="backend-status" class="status-badge status-offline" title="Estado de la conexión con el servidor REST">
+                    <span class="status-dot"></span> Verificando Backend...
+                </div>
+
+                <!-- Botón recargar -->
+                <button type="button" class="btn btn-outline btn-sm" id="btn-refresh" title="Actualizar datos desde el servidor">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+                    </svg>
+                    <span>Recargar</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Barra de Pestañas de Navegación por Entidad -->
+    <nav class="nav-tabs-wrapper" aria-label="Navegación de Entidades">
+        <div class="nav-tabs" id="main-nav">
+            <!-- Pestañas dinámicas inyectadas por JS -->
+        </div>
+    </nav>
+
+    <!-- Contenido Principal -->
+    <main class="main-content">
+        <!-- Encabezado del Módulo -->
+        <section class="module-header">
+            <div class="module-title-area">
+                <h2 id="section-title">Cargando...</h2>
+                <p id="section-desc" class="text-secondary">Gestión de datos de la API</p>
+            </div>
+            <div>
+                <button type="button" class="btn btn-primary" id="btn-add-entity">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                    <span>Nuevo Registro</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- Barra de Búsqueda y Filtros -->
+        <section class="toolbar-card">
+            <div class="filters-group">
+                <div class="search-box">
+                    <span class="search-icon">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                    </span>
+                    <input type="search" id="search-input" class="search-input" placeholder="Buscar por nombre, código o email..." autocomplete="off">
+                </div>
+
+                <!-- Filtros dinámicos según entidad -->
+                <div id="extra-filters-container" style="display: flex; gap: 0.5rem; flex-wrap: wrap;"></div>
+            </div>
+        </section>
+
+        <!-- Tarjeta de Tabla de Datos -->
+        <section class="table-card">
+            <div id="table-container">
+                <!-- Tabla inyectada por JS -->
+            </div>
+            
+            <!-- Controles de Paginación -->
+            <div id="pagination-container" class="pagination-wrapper">
+                <!-- Paginación inyectada por JS -->
+            </div>
+        </section>
+    </main>
+
+    <!-- ==========================================================================
+         DIÁLOGOS MODALES NATIVOS (<dialog>)
+         ========================================================================== -->
+
+    <!-- Modal para Crear / Editar Registro -->
+    <dialog id="entity-form-dialog" aria-labelledby="dialog-title" closedby="any">
+        <div class="dialog-header">
+            <h2 id="dialog-title" class="dialog-title">Formulario de Registro</h2>
+            <button type="button" class="dialog-close" data-action="close-dialog" aria-label="Cerrar modal">&times;</button>
+        </div>
+        <form id="entity-form">
+            <div class="dialog-body" id="dialog-form-body">
+                <!-- Campos generados dinámicamente -->
+            </div>
+            <div class="dialog-footer">
+                <button type="button" class="btn btn-outline" data-action="close-dialog">Cancelar</button>
+                <button type="submit" class="btn btn-primary" id="btn-save-entity">Guardar Cambios</button>
+            </div>
+        </form>
+    </dialog>
+
+    <!-- Modal de Confirmación de Eliminación -->
+    <dialog id="confirm-dialog" aria-labelledby="confirm-dialog-title" closedby="any">
+        <div class="dialog-header">
+            <h2 id="confirm-dialog-title" class="dialog-title">Confirmar Eliminación</h2>
+            <button type="button" class="dialog-close" data-action="close-dialog" aria-label="Cerrar modal">&times;</button>
+        </div>
+        <div class="dialog-body">
+            <p id="confirm-dialog-desc" class="text-secondary">¿Está seguro de que desea eliminar este registro de forma permanente?</p>
+        </div>
+        <div class="dialog-footer">
+            <button type="button" class="btn btn-outline" data-action="close-dialog" autofocus>Cancelar</button>
+            <button type="button" class="btn btn-danger" id="confirm-dialog-action">Eliminar</button>
+        </div>
+    </dialog>
+
+    <!-- Contenedor Flotante de Notificaciones Toast -->
+    <div id="toast-container" class="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+    <!-- Script Principal Modular ES6 -->
+    <script type="module" src="js/app.js"></script>
+</body>
+</html>

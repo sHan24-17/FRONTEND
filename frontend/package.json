@@ -1,0 +1,10 @@
+{
+  "name": "frontend-project",
+  "version": "1.0.0",
+  "description": "Panel de administración estático (HTML5, CSS3 y JavaScript ES6+) para la API REST de usuarios y productos",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/config.test.js"
+  }
+}

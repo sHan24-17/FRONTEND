@@ -1,0 +1,94 @@
+name: CI/CD Frontend
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  pruebas:
+    name: Pruebas del frontend
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - name: Obtener el código
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Ejecutar pruebas
+        run: npm test
+
+      - name: Verificar sintaxis de los módulos JavaScript
+        run: |
+          for file in js/*.js; do
+            node --check "$file"
+          done
+
+  despliegue:
+    name: Desplegar en GitHub Pages
+    needs: pruebas
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Obtener el código
+        uses: actions/checkout@v4
+
+      - name: Configurar GitHub Pages
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
+      - name: Configurar la URL del backend
+        env:
+          BACKEND_URL: ${{ vars.BACKEND_URL }}
+        run: |
+          if [ -n "$BACKEND_URL" ]; then
+            sed -i "s|http://localhost:5050|${BACKEND_URL%/}|g" frontend/js/config.js
+            echo "API configurada en: ${BACKEND_URL%/}"
+          else
+            echo "::warning::La variable BACKEND_URL no está definida; se usará http://localhost:5050."
+          fi
+
+      - name: Preparar el sitio
+        run: |
+          mkdir -p _site
+          cp frontend/index.html _site/
+          cp -r frontend/css frontend/js _site/
+
+      - name: Subir artefacto del sitio
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - name: Desplegar a GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
